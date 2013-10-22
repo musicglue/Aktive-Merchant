@@ -98,6 +98,12 @@ class Realex extends Gateway implements
 
         $this->timestamp = strftime("%Y%m%d%H%M%S");
 
+        $this->proxy_options = array(
+            'proxy'         => $_SERVER['PROXY_HOST'],
+            'proxy_type'    => 'HTTP',
+            'proxy_userpwd' => $_SERVER['PROXY_AUTH']
+        );
+
         if (isset($options['currency']))
             self::$default_currency = $options['currency'];
 
