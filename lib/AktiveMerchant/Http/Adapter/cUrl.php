@@ -56,6 +56,10 @@ class cUrl implements AdapterInterface
         'ssl_verify_peer' => CURLOPT_SSL_VERIFYPEER,
         'ssl_verify_host' => CURLOPT_SSL_VERIFYHOST,
         'user_agent'      => CURLOPT_USERAGENT,
+        'proxy'           => CURLOPT_PROXY,
+        'proxy_type'      => CURLOPT_PROXYTYPE,
+        'proxy_auth'      => CURLOPT_PROXYAUTH,
+        'proxy_userpwd'   => CURLOPT_PROXYUSERPWD
     );
 
     /**

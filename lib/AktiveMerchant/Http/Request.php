@@ -234,6 +234,18 @@ class Request implements RequestInterface
         if ($this->options['headers']) {
             $this->setHeaders($this->options['headers']->getArrayCopy());
         } 
+
+        if ($this->options['proxy']) {
+            $this->config['proxy'] = $this->options['proxy'];
+        }
+
+        if ($this->options['proxy_type']) {
+            $this->config['proxy_type'] = $this->options['proxy_type'];
+        }
+
+        if ($this->options['proxy_userpwd']) {
+            $this->config['proxy_userpwd'] = $this->options['proxy_userpwd'];
+        }
     }
 
     private function default_agent()
