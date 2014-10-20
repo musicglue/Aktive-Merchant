@@ -141,8 +141,6 @@ XML;
     private function commit($action, $money, $parameters)
     {
         $url = $this->isTest() ? static::TEST_URL : static::LIVE_URL;
-
-        $this->getAdapter()->setOption(CURLOPT_SSLVERSION, 3);
         
         $data = $this->ssl_post($url, $this->post_data($action), $parameters);
 
