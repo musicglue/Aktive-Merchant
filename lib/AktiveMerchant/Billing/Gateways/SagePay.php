@@ -5,6 +5,7 @@ namespace AktiveMerchant\Billing\Gateways;
 use AktiveMerchant\Billing\Gateway;
 use AktiveMerchant\Billing\CreditCard;
 use AktiveMerchant\Billing\Response;
+use AktiveMerchant\Billing\CvvResult;
 use DateTime;
 
 /**
@@ -51,24 +52,43 @@ class SagePay extends Gateway
 
     private function commit($params)
     {
-        $url = $this->url();
         $query = http_build_query($params);
+        $raw_response = $this->ssl_post($this->url(), $query);
+        $response = $this->parse($raw_response);
 
-        $response = $this->parse($this->ssl_post($url, $query));
-
-        $params = [];
-        $options = ['test' => $this->isTest()];
+        $params = $this->params_for($params, $raw_response);
+        $options = $this->options_for($response);
         return new Response($response['Status'] == 'OK', $response['Status'], $params, $options);
+    }
+
+    private function params_for($request, $response)
+    {
+        return [
+            'request' => $request,
+            'response' => $response
+        ];
+    }
+
+    private function options_for($response)
+    {
+        return [
+            'test' => $this->isTest(),
+            'authorization' => [
+                'VPSTxId' => $response['VPSTxId'],
+                'SecurityKey' => $response['SecurityKey'],
+                'VendorTxCode' => $this->options['login']
+            ]
+        ];
     }
 
     private function parse($str)
     {
+        $response = [];
         preg_match_all('/(\w+=.+)+/', $str, $matches);
 
-        $response = [];
         foreach ($matches[0] as $match) {
             $exploded = explode('=', $match);
-            $response[$exploded[0]] = $exploded[1];
+            $response[$exploded[0]] = trim($exploded[1]);
         }
 
         return $response;
