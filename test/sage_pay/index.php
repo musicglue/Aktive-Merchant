@@ -16,10 +16,10 @@ $gateway = Base::gateway('sage_pay', [
 $creditcard = new CreditCard([
     "first_name" => "John",
     "last_name" => "Doe",
-    "number" => "4111111111111111",
+    "number" => "4929000000006",
     "month" => "01",
     "year" => "2015",
-    "verification_value" => "000"
+    "verification_value" => "123"
 ]);
 
 $options = [
@@ -30,6 +30,7 @@ $options = [
         'address1' => '1234 Street',
         'zip' => '98004',
         'state' => 'WA',
+        'city' => 'Seattle',
         'country' => 'US'
     ]
 ];

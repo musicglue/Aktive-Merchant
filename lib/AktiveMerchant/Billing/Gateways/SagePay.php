@@ -14,7 +14,7 @@ use DateTime;
  */
 class SagePay extends Gateway
 {
-    const TEST_URL = 'https://test.sagepay.com/gateway/service/vspdirect-register.vsp';
+    const TEST_URL = 'https://test.sagepay.com/Simulator/VSPDirectGateway.asp';
     const LIVE_URL = 'https://live.sagepay.com/gateway/service/vspdirect-register.vsp';
 
     public static $money_format = 'cents';
@@ -27,18 +27,11 @@ class SagePay extends Gateway
     public static $card_codes = [
         'VISA'      => 'visa',
         'MC'        => 'master',
-        /* 'MCDEBIT'   => '', */
-        /* 'DELTA'     => '', // Visa Debit */
         'MAESTRO'   => 'maestro',
-        /* 'UKE'       => '', */
         'AMEX'      => 'american_express',
         'DC'        => 'diners_club',
         'JCB'       => 'jcb'
     ];
-
-    /* private $options = []; */
-    /* private $xml; */
-    /* private $timestamp; */
 
     /**
      * Contructor
@@ -58,16 +51,23 @@ class SagePay extends Gateway
         $query = http_build_query($params);
 
         $response = $this->parse($this->ssl_post($url, $query));
-        var_dump($response);
 
         $params = [];
         $options = ['test' => $this->isTest()];
-        return new Response(true, 'Boom!', $params, $options);
+        return new Response($response['Status'] == 'OK', $response['Status'], $params, $options);
     }
 
     private function parse($response)
     {
-        return $response;
+        preg_match_all('/(\w+=.+)+/', $response, $matches);
+
+        $return = [];
+        foreach ($matches[0] as $match) {
+            $exploded = explode('=', $match);
+            $return[$exploded[0]] = $exploded[1];
+        }
+
+        return $return;
     }
 
     private function url()
@@ -91,7 +91,7 @@ class SagePay extends Gateway
     private function params()
     {
         return [
-            'VPSProtocol' => '3.00',
+            'VPSProtocol' => '2.23',
             'TxType' => 'PAYMENT',
             'Vendor' => $this->options['login']
         ];
