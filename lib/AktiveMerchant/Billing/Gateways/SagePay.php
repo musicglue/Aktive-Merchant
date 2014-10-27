@@ -57,17 +57,17 @@ class SagePay extends Gateway
         return new Response($response['Status'] == 'OK', $response['Status'], $params, $options);
     }
 
-    private function parse($response)
+    private function parse($str)
     {
-        preg_match_all('/(\w+=.+)+/', $response, $matches);
+        preg_match_all('/(\w+=.+)+/', $str, $matches);
 
-        $return = [];
+        $response = [];
         foreach ($matches[0] as $match) {
             $exploded = explode('=', $match);
-            $return[$exploded[0]] = $exploded[1];
+            $response[$exploded[0]] = $exploded[1];
         }
 
-        return $return;
+        return $response;
     }
 
     private function url()
