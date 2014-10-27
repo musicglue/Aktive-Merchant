@@ -83,6 +83,8 @@ class Realex extends Gateway implements
     private $options = array();
     private $xml;
     private $timestamp;
+    private $proxy_enabled = true;
+    private $proxy_options;
 
     /**
      * Contructor
@@ -95,6 +97,12 @@ class Realex extends Gateway implements
         $this->required_options('login, password', $options);
 
         $this->timestamp = strftime("%Y%m%d%H%M%S");
+
+        $this->proxy_options = array(
+            'proxy'         => $_SERVER['PROXY_HOST'],
+            'proxy_type'    => 'HTTP',
+            'proxy_userpwd' => $_SERVER['PROXY_AUTH']
+        );
 
         if (isset($options['currency']))
             self::$default_currency = $options['currency'];
@@ -291,7 +299,12 @@ class Realex extends Gateway implements
     private function commit($endpoint='default')
     {
         $url = ($endpoint == 'recurring') ? self::RECURRING_URL : self::URL;
-        $response = $this->parse($this->ssl_post($url, $this->xml->asXML()));
+        $args = array($url, $this->xml->asXML());
+        if ($this->proxy_enabled) {
+            $args[2] = $this->proxy_options;
+        }
+        $response = $this->parse(call_user_func_array(array($this, 'ssl_post'), $args));
+
         return new Response(((string) $response->result == '00'), $this->message_from($response), $this->params_from($response), $this->options_from($response));
     }
 
