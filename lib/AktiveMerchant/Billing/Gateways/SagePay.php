@@ -41,7 +41,7 @@ class SagePay extends Gateway
      */
     public function __construct($options)
     {
-        $this->required_options('login, password', $options);
+        $this->required_options('login', $options);
         $this->timestamp = strftime("%Y%m%d%H%M%S");
         $this->options = $options;
 
@@ -58,7 +58,7 @@ class SagePay extends Gateway
 
         $params = $this->params_for($params, $raw_response);
         $options = $this->options_for($response);
-        return new Response($response['Status'] == 'OK', $response['Status'], $params, $options);
+        return new Response($response['Status'] == 'OK', $response['StatusDetail'], $params, $options);
     }
 
     private function params_for($request, $response)
@@ -71,14 +71,19 @@ class SagePay extends Gateway
 
     private function options_for($response)
     {
-        return [
-            'test' => $this->isTest(),
-            'authorization' => [
+        $options = [
+            'test' => $this->isTest()
+        ];
+
+        if (isset($response['VPSTxId'])) {
+            $options['authorization'] = [
                 'VPSTxId' => $response['VPSTxId'],
                 'SecurityKey' => $response['SecurityKey'],
                 'VendorTxCode' => $this->options['login']
-            ]
-        ];
+            ];
+        }
+
+        return $options;
     }
 
     private function parse($str)
@@ -107,7 +112,6 @@ class SagePay extends Gateway
         $params = $this->add_payment_details($params, $creditcard, $options);
         $params = $this->add_shipping_address($params, $options);
         $params = $this->add_customer_data($params, $options);
-        $params = $this->add_optional_data($params, $options);
 
         return $this->commit($params);
     }
@@ -132,7 +136,10 @@ class SagePay extends Gateway
     private function add_invoice($params, $options)
     {
         $params['VendorTxCode'] = $options['order_id'];
-        $params['Description'] = $options['description'];
+
+        if (isset($options['description'])) {
+            $params['Description'] = $options['description'];
+        }
 
         return $params;
     }
@@ -212,14 +219,6 @@ class SagePay extends Gateway
         if (isset($options['ip'])) {
             $params['ClientIPAddress'] = $options['ip'];
         }
-
-        return $params;
-    }
-
-    private function add_optional_data($params, $options)
-    {
-        $params['VendorTxCode'] = $options['order_id'];
-        $params['Description'] = $options['description'];
 
         return $params;
     }

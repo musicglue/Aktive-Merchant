@@ -55,8 +55,6 @@ define('PSIGATE_PASS', '');
  * SAGE PAY
  */
 define('SAGE_PAY_LOGIN','');
-define('SAGE_PAY_PASS','');
-/* define('SAGE_PAY_INSTALLATION_ID',''); */
 
 /**
  * WORLDPAY

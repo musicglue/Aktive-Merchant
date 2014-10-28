@@ -9,8 +9,7 @@ use AktiveMerchant\Billing\CreditCard;
 Base::mode('test'); # Remove this on production mode
 
 $gateway = Base::gateway('sage_pay', [
-    'login' => SAGE_PAY_LOGIN,
-    'password' => SAGE_PAY_PASS
+    'login' => SAGE_PAY_LOGIN
 ]);
 
 $creditcard = new CreditCard([
