@@ -26,12 +26,12 @@ class SagePay extends Gateway
     public static $display_name = 'Sage Pay';
 
     public static $card_codes = [
-        'VISA'      => 'visa',
-        'MC'        => 'master',
-        'MAESTRO'   => 'maestro',
-        'AMEX'      => 'american_express',
-        'DC'        => 'diners_club',
-        'JCB'       => 'jcb'
+        'visa'             => 'VISA',
+        'master'           => 'MC',
+        'maestro'          => 'MAESTRO',
+        'american_express' => 'AMEX',
+        'diners_club'      => 'DC',
+        'jcb'              => 'JCB'
     ];
 
     /**
@@ -150,7 +150,7 @@ class SagePay extends Gateway
         $params['CardNumber'] = $creditcard->number;
         $params['ExpiryDate'] = $this->formatDate($creditcard->month, $creditcard->year);
         $params['CV2'] = $creditcard->verification_value;
-        $params['CardType'] = $creditcard->type;
+        $params['CardType'] = self::$card_codes[$creditcard->type];
 
         $address = $this->format_address($options['address']);
 
