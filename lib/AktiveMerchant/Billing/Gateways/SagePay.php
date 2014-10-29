@@ -56,16 +56,20 @@ class SagePay extends Gateway
         $raw_response = $this->ssl_post($this->url(), $query);
         $response = $this->parse($raw_response);
 
-        $params = $this->params_for($params, $raw_response);
+        $params = $this->params_for($params, $response, $raw_response);
         $options = $this->options_for($response);
-        return new Response($response['Status'] == 'OK', $response['StatusDetail'], $params, $options);
+        $success = $response['Status'] == 'OK';
+        $message = isset($response['StatusDetail']) ? $response['StatusDetail']: $response['Status'];
+
+        return new Response($success, $message, $params, $options);
     }
 
-    private function params_for($request, $response)
+    private function params_for($request, $response, $raw_response)
     {
         return [
             'request' => $request,
-            'response' => $response
+            'response' => $response,
+            'raw_response' => $raw_response
         ];
     }
 
@@ -76,11 +80,11 @@ class SagePay extends Gateway
         ];
 
         if (isset($response['VPSTxId'])) {
-            $options['authorization'] = [
+            $options['authorization'] = json_encode([
                 'VPSTxId' => $response['VPSTxId'],
                 'SecurityKey' => $response['SecurityKey'],
                 'VendorTxCode' => $this->options['login']
-            ];
+            ]);
         }
 
         return $options;
