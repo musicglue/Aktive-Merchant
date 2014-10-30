@@ -24,6 +24,7 @@ class SagePay extends Gateway
     public static $supported_cardtypes  = ['visa', 'master', 'american_express', 'discover', 'maestro', 'diners_club', 'jcb'];
     public static $homepage_url = 'http://www.sagepay.co.uk/';
     public static $display_name = 'Sage Pay';
+    private $proxy_options = [];
 
     public static $card_codes = [
         'visa'             => 'VISA',
@@ -44,6 +45,13 @@ class SagePay extends Gateway
         $this->required_options('login', $options);
         $this->timestamp = strftime("%Y%m%d%H%M%S");
         $this->options = $options;
+        if (isset($_SERVER['PROXY_HOST'])) {
+            $this->proxy_options = [
+                'proxy'         => $_SERVER['PROXY_HOST'],
+                'proxy_type'    => 'HTTP',
+                'proxy_userpwd' => $_SERVER['PROXY_AUTH']
+            ];
+        }
 
         if (isset($options['currency'])) {
             self::$default_currency = $options['currency'];
@@ -53,7 +61,7 @@ class SagePay extends Gateway
     private function commit($params)
     {
         $query = http_build_query($params);
-        $raw_response = $this->ssl_post($this->url(), $query);
+        $raw_response = $this->ssl_post($this->url(), $query, $this->proxy_options);
         $response = $this->parse($raw_response);
 
         $params = $this->params_for($params, $response, $raw_response);
