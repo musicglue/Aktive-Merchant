@@ -15,10 +15,12 @@ use DateTime;
  */
 class SagePay extends Gateway
 {
-    const TEST_URL = 'https://test.sagepay.com/Simulator/VSPDirectGateway.asp';
+    const SIMULATOR_URL = 'https://test.sagepay.com/Simulator/VSPDirectGateway.asp';
+    const TEST_URL = 'https://test.sagepay.com/gateway/service/vspdirect-register.vsp';
     const LIVE_URL = 'https://live.sagepay.com/gateway/service/vspdirect-register.vsp';
 
-    const TEST_3D_URL = 'https://test.sagepay.com/Simulator/VSPDirectCallback.asp';
+    const SIMULATOR_3D_URL = 'https://test.sagepay.com/Simulator/VSPDirectCallback.asp';
+    const TEST_3D_URL = 'https://test.sagepay.com/gateway/service/direct3dcallback.vsp';
     const LIVE_3D_URL = 'https://live.sagepay.com/gateway/service/direct3dcallback.vsp';
 
     public static $money_format = 'cents';
@@ -118,9 +120,25 @@ class SagePay extends Gateway
     private function getUrl($endpoint)
     {
         if ($endpoint == 'gateway') {
-            return $this->isTest() ? self::TEST_URL : self::LIVE_URL;
+            if ($this->isTest()) {
+                if (isset($_SERVER['SAGE_PAY_SIMULATOR'])) {
+                    return self::SIMULATOR_URL;
+                } else {
+                    return self::TEST_URL
+                }
+            } else {
+                return self::LIVE_URL;
+            }
         } elseif ($endpoint == '3dcallback') {
-            return $this->isTest() ? self::TEST_3D_URL : self::LIVE_3D_URL;
+            if ($this->isTest()) {
+                if (isset($_SERVER['SAGE_PAY_SIMULATOR'])) {
+                    return self::SIMULATOR_3D_URL;
+                } else {
+                    return self::TEST_3D_URL
+                }
+            } else {
+                return self::LIVE_3D_URL;
+            }
         } else {
             throw new \Exception("The endpoint '$endpoint' is unrecognised");
         }
