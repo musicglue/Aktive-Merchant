@@ -18,6 +18,9 @@ class SagePay extends Gateway
     const TEST_URL = 'https://test.sagepay.com/Simulator/VSPDirectGateway.asp';
     const LIVE_URL = 'https://live.sagepay.com/gateway/service/vspdirect-register.vsp';
 
+    const TEST_3D_URL = 'https://test.sagepay.com/Simulator/VSPDirectCallback.asp';
+    const LIVE_3D_URL = 'https://live.sagepay.com/gateway/service/direct3dcallback.vsp';
+
     public static $money_format = 'cents';
     public static $default_currency = 'GBP';
     public static $supported_countries = ['HK', 'US', 'GB', 'AU', 'AD', 'BE', 'CH', 'CY', 'CZ', 'DE', 'DK', 'ES', 'FI', 'FR', 'GI', 'GR', 'HU', 'IE', 'IL', 'IT', 'LI', 'LU', 'MC', 'MT', 'NL', 'NO', 'NZ', 'PL', 'PT', 'SE', 'SG', 'SI', 'SM', 'TR', 'UM', 'VA'];
@@ -58,10 +61,11 @@ class SagePay extends Gateway
         }
     }
 
-    private function commit($params)
+    private function commit($params, $endpoint = 'gateway')
     {
         $query = http_build_query($params);
-        $raw_response = $this->ssl_post($this->url(), $query, $this->proxy_options);
+        $url = $this->getUrl($endpoint);
+        $raw_response = $this->ssl_post($url, $query, $this->proxy_options);
         $response = $this->parse($raw_response);
 
         $params = $this->params_for($params, $response, $raw_response);
@@ -111,9 +115,15 @@ class SagePay extends Gateway
         return $response;
     }
 
-    private function url()
+    private function getUrl($endpoint)
     {
-        return $this->isTest() ? self::TEST_URL : self::LIVE_URL;
+        if ($endpoint == 'gateway') {
+            return $this->isTest() ? self::TEST_URL : self::LIVE_URL;
+        } elseif ($endpoint == '3dcallback') {
+            return $this->isTest() ? self::TEST_3D_URL : self::LIVE_3D_URL;
+        } else {
+            throw new \Exception("The endpoint '$endpoint' is unrecognised");
+        }
     }
 
     public function purchase($amount, CreditCard $creditcard, $options=array())
@@ -125,7 +135,17 @@ class SagePay extends Gateway
         $params = $this->add_shipping_address($params, $options);
         $params = $this->add_customer_data($params, $options);
 
-        return $this->commit($params);
+        return $this->commit($params, 'gateway');
+    }
+
+    public function complete3d($md, $paRes)
+    {
+        $params = [
+            'MD' => $md,
+            'PARes' => $paRes
+        ];
+
+        return $this->commit($params, '3dcallback');
     }
 
     private function params()
