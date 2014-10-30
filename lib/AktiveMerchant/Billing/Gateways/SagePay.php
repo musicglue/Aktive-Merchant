@@ -124,7 +124,7 @@ class SagePay extends Gateway
                 if (isset($_SERVER['SAGE_PAY_SIMULATOR'])) {
                     return self::SIMULATOR_URL;
                 } else {
-                    return self::TEST_URL
+                    return self::TEST_URL;
                 }
             } else {
                 return self::LIVE_URL;
@@ -134,7 +134,7 @@ class SagePay extends Gateway
                 if (isset($_SERVER['SAGE_PAY_SIMULATOR'])) {
                     return self::SIMULATOR_3D_URL;
                 } else {
-                    return self::TEST_3D_URL
+                    return self::TEST_3D_URL;
                 }
             } else {
                 return self::LIVE_3D_URL;
