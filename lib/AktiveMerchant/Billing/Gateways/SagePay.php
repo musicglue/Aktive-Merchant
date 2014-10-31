@@ -186,10 +186,7 @@ class SagePay extends Gateway
     private function add_invoice($params, $options)
     {
         $params['VendorTxCode'] = $options['order_id'];
-
-        if (isset($options['description'])) {
-            $params['Description'] = $options['description'];
-        }
+        $params['Description'] = $options['description'];
 
         return $params;
     }
