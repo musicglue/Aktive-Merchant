@@ -57,7 +57,7 @@ class CreditCardMethods
 
     public static function isValidNumber($number)
     {
-        return ((self::_is_valid_card_number_length($number) && 
+        return ((self::_is_valid_card_number_length($number) &&
             self::_is_valid_checksum($number)));
     }
 
@@ -117,6 +117,10 @@ class CreditCardMethods
         $last = strlen($number) - 1;
         for ($i = 0; $i <= $last; $i++) {
             $sum += $map[$number[$last - $i] + ($i & 1) * 10];
+        }
+
+        if ($sum === 0) {
+            return false;
         }
 
         return ($sum % 10 == 0);
