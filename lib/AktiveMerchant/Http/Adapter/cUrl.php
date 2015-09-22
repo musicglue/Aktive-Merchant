@@ -219,7 +219,7 @@ class cUrl implements AdapterInterface
             // Do not use cached connection
             CURLOPT_FRESH_CONNECT   => 1,
             CURLOPT_CONNECTTIMEOUT  => 20,
-            CURLOPT_TIMEOUT         => 7
+            CURLOPT_TIMEOUT         => 20
         );
 
         $config = $this->map_config($request->getConfig());
